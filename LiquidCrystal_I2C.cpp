@@ -32,6 +32,7 @@ LiquidCrystal_I2C::LiquidCrystal_I2C(uint8_t lcd_addr, uint8_t lcd_cols, uint8_t
 }
 
 void LiquidCrystal_I2C::begin() {
+	cli();
 	Wire.begin();
 	_displayfunction = LCD_4BITMODE | LCD_1LINE | LCD_5x8DOTS;
 
@@ -89,109 +90,147 @@ void LiquidCrystal_I2C::begin() {
 	command(LCD_ENTRYMODESET | _displaymode);
 
 	home();
+	sei();
 }
 
 /********** high level commands, for the user! */
 void LiquidCrystal_I2C::clear(){
+	cli();
 	command(LCD_CLEARDISPLAY);// clear display, set cursor position to zero
+	sei();
 	delayMicroseconds(2000);  // this command takes a long time!
 }
 
 void LiquidCrystal_I2C::home(){
+	cli();
 	command(LCD_RETURNHOME);  // set cursor position to zero
+	sei();
 	delayMicroseconds(2000);  // this command takes a long time!
 }
 
 void LiquidCrystal_I2C::setCursor(uint8_t col, uint8_t row){
+	cli();
 	int row_offsets[] = { 0x00, 0x40, 0x14, 0x54 };
 	if (row > _rows) {
 		row = _rows-1;    // we count rows starting w/0
 	}
 	command(LCD_SETDDRAMADDR | (col + row_offsets[row]));
+	sei();
 }
 
 // Turn the display on/off (quickly)
 void LiquidCrystal_I2C::noDisplay() {
+	cli();
 	_displaycontrol &= ~LCD_DISPLAYON;
 	command(LCD_DISPLAYCONTROL | _displaycontrol);
+	sei();
 }
 void LiquidCrystal_I2C::display() {
+	cli();
 	_displaycontrol |= LCD_DISPLAYON;
 	command(LCD_DISPLAYCONTROL | _displaycontrol);
+	sei();
 }
 
 // Turns the underline cursor on/off
 void LiquidCrystal_I2C::noCursor() {
+	cli();
 	_displaycontrol &= ~LCD_CURSORON;
 	command(LCD_DISPLAYCONTROL | _displaycontrol);
+	sei();
 }
 void LiquidCrystal_I2C::cursor() {
+	cli();
 	_displaycontrol |= LCD_CURSORON;
 	command(LCD_DISPLAYCONTROL | _displaycontrol);
+	sei();
 }
 
 // Turn on and off the blinking cursor
 void LiquidCrystal_I2C::noBlink() {
+	cli();
 	_displaycontrol &= ~LCD_BLINKON;
 	command(LCD_DISPLAYCONTROL | _displaycontrol);
+	sei();
 }
 void LiquidCrystal_I2C::blink() {
+	cli();
 	_displaycontrol |= LCD_BLINKON;
 	command(LCD_DISPLAYCONTROL | _displaycontrol);
+	sei();
 }
 
 // These commands scroll the display without changing the RAM
 void LiquidCrystal_I2C::scrollDisplayLeft(void) {
+	cli();
 	command(LCD_CURSORSHIFT | LCD_DISPLAYMOVE | LCD_MOVELEFT);
+	sei();
 }
 void LiquidCrystal_I2C::scrollDisplayRight(void) {
+	cli();
 	command(LCD_CURSORSHIFT | LCD_DISPLAYMOVE | LCD_MOVERIGHT);
+	sei();
 }
 
 // This is for text that flows Left to Right
 void LiquidCrystal_I2C::leftToRight(void) {
+	cli();
 	_displaymode |= LCD_ENTRYLEFT;
 	command(LCD_ENTRYMODESET | _displaymode);
+	sei();
 }
 
 // This is for text that flows Right to Left
 void LiquidCrystal_I2C::rightToLeft(void) {
+	cli();
 	_displaymode &= ~LCD_ENTRYLEFT;
 	command(LCD_ENTRYMODESET | _displaymode);
+	sei();
 }
 
 // This will 'right justify' text from the cursor
 void LiquidCrystal_I2C::autoscroll(void) {
+	cli();
 	_displaymode |= LCD_ENTRYSHIFTINCREMENT;
 	command(LCD_ENTRYMODESET | _displaymode);
+	sei();
 }
 
 // This will 'left justify' text from the cursor
 void LiquidCrystal_I2C::noAutoscroll(void) {
+	cli();
 	_displaymode &= ~LCD_ENTRYSHIFTINCREMENT;
 	command(LCD_ENTRYMODESET | _displaymode);
+	sei();
 }
 
 // Allows us to fill the first 8 CGRAM locations
 // with custom characters
 void LiquidCrystal_I2C::createChar(uint8_t location, uint8_t charmap[]) {
+	cli();
 	location &= 0x7; // we only have 8 locations 0-7
 	command(LCD_SETCGRAMADDR | (location << 3));
 	for (int i=0; i<8; i++) {
 		write(charmap[i]);
 	}
+	sei();
 }
 
 // Turn the (optional) backlight off/on
 void LiquidCrystal_I2C::noBacklight(void) {
+	cli();
 	_backlightval=LCD_NOBACKLIGHT;
 	expanderWrite(0);
+	sei();
 }
 
 void LiquidCrystal_I2C::backlight(void) {
+	cli();
 	_backlightval=LCD_BACKLIGHT;
 	expanderWrite(0);
+	sei();
 }
+
 bool LiquidCrystal_I2C::getBacklight() {
   return _backlightval == LCD_BACKLIGHT;
 }
